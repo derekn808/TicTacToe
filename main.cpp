@@ -1,77 +1,56 @@
-/*
-//	The UI for the game.
-//	Takes in the user's inputs and calls the proper functions
-//	to create the board and fills it in based on inputs.
-*/
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <cassert>
+#include "tictactoe.h"
+using namespace std;
+int main(){
+	
+	int boardSize;
+	bool xTurn = true;
+	int turns = 0;
 
-#include<cstdio>
-#include<cstdlib>
-#include<iostream>
-#include “tictactoe.h”
-
-int main()
-{
-	int board_size;
-	int player = 1;
-	int turns = 1;
-	cout << “Tic Tac Toe” << endl;
-	cout << “Player 1 is X” << endl;
-	cout << “Player 2 is O” << endl;
-	cout << “Enter number of squares you want in a row (i.e. 3 will make a 3x3 board):” <<endl;
-	cin >> board_size;
-	tictactoe::tictactoe game(board_size);
-	int max=board_size^2;
-	int min=((board_size*2)-1);
-	int pos;
-	while(turns<=max)
-	{
-		game.printBoard();
-		std::cout << “Turn number: “ << turns << “\n” << “It is Player “ << player << “‘s turn” <<std::endl
-		cout << “Where do you want to place your marker?” << endl;
-		cin >> pos;
-		while(game.isMarked(pos)==true)
-		{
-			cout << “Square is already marked. Please input new location.” << endl;
-			cin >> pos;
+	cout << endl << "2 Player Tic Tac Toe" << endl << endl << endl;
+	cout << "Enter a board size: " << endl << "(must be at least 3)" << "(e.g. 3 makes a 3x3 board)" << endl;
+	cin >> boardSize;
+	assert(boardSize > 2);
+	tictactoe::board b(boardSize);
+	while(1){
+		cout << string(50, '\n');
+		cout << b;
+		if(xTurn){
+			bool inserted = false;
+			while(!inserted){
+				int pos;
+				cout << "X, enter the position you want to insert at: ";
+				cin >> pos;
+				inserted = b.xInsert(pos);
+				xTurn = false;
+			}	
 		}
-	if(player==1)
-	{
-		game.xInsert(pos);
-	} 
-	else if(player==2)
-	{
-		game.oInsert(pos);
-	}
-		
-		if(turns>=min)
-		{
-			if(game.xWin == true)
-			{
-				game.printBoard();
-				cout<< “Player 1 Wins!” << endl;
-				break;
+		else{
+			bool inserted = false;
+			while(!inserted){
+				int pos;
+				cout << "O, enter the position you want to insert at: ";
+				cin >> pos;
+				inserted = b.oInsert(pos);
+				xTurn = true;
 			}
-			if(game.oWin == true)
-			{
-				game.printBoard();
-				cout<< “Player 2 Wins!” << endl;
-				break;
-			}
-		}
-		if(turns==max)
-		{
-			game.printBoard();
-			cout << “It’s a tie.” << endl;
+		}	
+		cout << b;
+		turns++;
+		if(b.xWin()){
+			cout << "X has won!" << endl;
 			break;
 		}
-		turns ++;
-		if(player==1)
-		{
-			player++;
+		else if(b.oWin()){
+			cout << "O has won!" << endl;
+			break;
 		}
-		else
-		{
-			player--;
+		else if(turns == boardSize*boardSize){
+			cout << "It's a tie!" << endl;
+			break;
 		}
 	}
 	return EXIT_SUCCESS;

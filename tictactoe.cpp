@@ -1,224 +1,185 @@
+#include "tictactoe.h"
 #include <stdlib.h>
-#include <cassert>
-#include “tictactoe.h”
-namespace tictactoe
-{
-	/*Initializes the board*/
-	tictactoe::tictactoe(int board_size)
-	{	
-		assert(board_size>2);		//prevents first player from always winning
-		size=board_size;
-		board = new std::string *[size];
-		for(int i=0; i<size; i++)
-		{
-			board[i] = new std::string[size]
+namespace tictactoe{
+	board::board(int board_size){
+		size = board_size;
+
+		b = new std::string*[board_size];
+		for(int i = 0; i < board_size; ++i)
+    		b[i] = new std::string[board_size];
+    	
+		for(int i = 0; i < board_size; ++i){
+			for(int j = 0; j < board_size; ++j){
+				std::string k = std::to_string(((i * board_size) + j));
+				b[i][j] = k;
+			}
 		}
-		for(int i=0; i<size; i++)
-		{
-			for(int j=0;j<size;j++)
-			{
-				std::string num= std::to_string(((i*size)+j+1))
-				board[i][j]=num;
+	}
+	bool board::isNum(const std::string& s){
+	    std::string::const_iterator it = s.begin();
+	    while (it != s.end() && std::isdigit(*it)) ++it;
+	    return !s.empty() && it == s.end();
+	}
+	
+	std::string board::getItem(int pos) const{
+		int row = pos / size;
+		int col = pos % size;
+		return b[row][col];
+	}
+	
+	std::string board::getItem(int row, int col) const{
+		return b[row][col];
+	}
+
+	void board::print(){
+		for(int i = 0; i < getSize(); ++i){
+			for(int j = 0; j < getSize(); ++j){
+				std::cout << b[i][j];
 			}
 		}
 	}
 
-	/*Prints out the board in its current state*/
-	void tictactoe::printBoard()
-	{
-		for(int i=0; i<size; i++)
-		{
-			for(j=0; j<size; j++)
-			{
-				if(j!=(size-1))
-				{
-					std::cout<< board[i][j] << endl;
-				}
-				else
-				{
-					std::cout<< board[i][j] << “ | “ << endl;
-				}
+	bool board::xWin(){
+		//Horizontal Win
+		for(int i = 0; i < size; ++i){
+			for(int j = 0; j < size; ++j){
+				if(b[i][j] != "X")
+					break;
+				if(j == (size-1))
+					return true;
 			}
-			if(i!=(size-1))
-			{
-				for(int k=0;k<size;k++)
-				{
-					if(k!=(size-1))
-					{
-						std::cout<< “---”<< endl;
-					}
-					else
-					{
-						std::cout<< “---+” << endl;
-					}
-				}
+		}
+
+		//Vertical Win
+		for(int i = 0; i < size; ++i)
+			for(int j = 0; j < size; ++j){
+				if(b[j][i] != "X")
+					break;
+				if(j == (size-1))
+					return true;
 			}
-}
-	}
-	
-	/*Checks to see if a square is marked*/
-	bool tictactoe::isMarked(int pos)
-	{
-		pos--;
-		int row = pos /size;
-		int col = pos%size;
-		if(strcmp(board[row][col], “X”)==0 || strcmp(board[row][col], “O”)==0)
-		{
-			return true;
+		
+		//Top Left to Bottom Right Diagonal Win
+		for(int i = 0; i < size; ++i){
+			if(b[i][i] != "X")
+				break;
+			if(i == (size-1))
+				return true;
 		}
-		else
-		{
-			return false;
+ 
+		//Top Right to Bottom Left Diagonal Win
+		for(int i = 0; i < size; ++i){
+			if(b[(size-1)-i][i] != "X")
+				break;
+			if(i == (size-1))
+				return true;
 		}
-	}
-	
-	/*Returns what value is stored in the given square on the board*/
-	std::string tictactoe::getSquare(int row, int col)
-	{
-		return board[row][col];
-	}
-	
-	/*Inserts an X at given position*/
-	bool tictactoe::xInsert(int pos)
-	{
-		pos--;
-		int row = pos /size;
-		int col = pos%size;
-		if(isMarked(pos+1))
-		{
-			board[row][col] = “X”;
-			return true;
-		}
+
 		return false;
 	}
 
-	/*Inserts an O at given position*/
-	bool tictactoe::oInsert(int pos)
-	{
-		pos--;
-		int row = pos /size;
-		int col = pos%size;
-		if(isMarked(pos+1))
-		{
-			board[row][col] = “O”;
-			return true;
+	bool board::oWin(){
+		//Horizontal Win
+		for(int i = 0; i < size; ++i){
+			for(int j = 0; j < size; ++j){
+				if(b[i][j] != "O")
+					break;
+				if(j == (size-1))
+					return true;
+			}
 		}
+
+		//Vertical Win
+		for(int i = 0; i < size; ++i)
+			for(int j = 0; j < size; ++j){
+				if(b[j][i] != "O")
+					break;
+				if(j == (size-1))
+					return true;
+			}
+		
+		//Top Left to Bottom Right Diagonal Win
+		for(int i = 0; i < size; ++i){
+			if(b[i][i] != "O")
+				break;
+			if(i == (size-1))
+				return true;
+		}
+ 
+		//Top Right to Bottom Left Diagonal Win
+		for(int i = 0; i < size; ++i){
+			if(b[(size-1)-i][i] != "O")
+				break;
+			if(i == (size-1))
+				return true;
+		}
+
 		return false;
 	}
 
-	/*Checks for all possible win conditions for X*/
-	bool tictactoe::xWin()
-	{
-		for(int i=0;i<size;i++)
-		{
-			for(int j=0; j<size; j++)
-			{
-				if(strcmp(board[i][j], “X”)!=0)
-				{
-					break;
-				}
-				if(j==(size)-1)
-				{
-					return true;
-				}
-			}
-		}
-
-		for(int i=0;i<size;i++)
-		{
-			for(int j=0; j<size; j++)
-			{
-				if(strcmp(board[j][i], “X”)!=0)
-				{
-					break;
-				}
-				if(j==(size-1))
-				{
-					return true;
-				}
-			}
-		}
-
-		for(int i=0; i<size; i++)
-		{
-			(strcmp(board[i][i], “X”)!=0)
-			{
-				break;
-			}
-			if(i == (size-1))
-			{
-				return true;
-			}
-		}
-
-		for(int i=0; i<size; i++)
-		{
-			(strcmp(board[size-1-i][i], “X”)!=0)
-			{
-				break;
-			}
-			if(i == (size-1))
-			{
-				return true;
-			}
-		}
+	bool board::xInsert(int pos){
+		int row = pos / size;
+		int col = pos % size;
+		if(isNum(b[row][col])){
+			b[row][col] = "X";
+			return true;
+		} 
+		return false;
 	}
-	
-	/*Checks for all possible win conditions for O*/
-	bool tictactoe::oWin()
-	{
-		for(int i=0;i<size;i++)
-		{
-			for(int j=0; j<size; j++)
-			{
-				if(strcmp(board[i][j], “O”)!=0)
-				{
-					break;
-				}
-				if(j==(size)-1)
-				{
-					return true;
-				}
+
+	bool board::xInsert(int row, int col){
+		if(isNum(b[row][col])){
+			b[row][col] = "X";
+			return true;
+		} 
+		return false;
+	}
+
+	bool board::oInsert(int pos){
+		int row = pos / size;
+		int col = pos % size;
+		if(isNum(b[row][col])){
+			b[row][col] = "O";
+			return true;
+		} 
+		return false;
+	}
+
+	bool board::oInsert(int row, int col){
+		if(isNum(b[row][col])){
+			b[row][col] = "X";
+			return true;
+		} 
+		return false;
+	}
+
+	std::ostream& operator << (std::ostream& out, const board& b){
+		for(int i = 0; i < b.getSize(); ++i){
+			out << std::endl;
+			for(int j = 0; j < b.getSize(); ++j){
+				out << "+---";
+			}
+			out << "+" << std::endl << "|";
+
+			for(int j = 0; j < b.getSize(); ++j){
+				std::string item = b.getItem(i,j);
+				int len = item.length();
+				if(len <= 1)
+					out <<std::setw(2)<< item << std::setw(2) << "|";
+				else if(len == 2)
+					out <<std::setw(1)<< item << std::setw(2) << "|";
+				else if (len == 3)
+					out <<std::setw(0)<< item << std::setw(1) << "|";
 			}
 		}
 
-		for(int i=0;i<size;i++)
-		{
-			for(int j=0; j<size; j++)
-			{
-				if(strcmp(board[j][i], “O”)!=0)
-				{
-					break;
-				}
-				if(j==(size-1))
-				{
-					return true;
-				}
-			}
+		out << std::endl;
+		for(int j = 0; j < b.getSize(); ++j){
+			out << "+---";
 		}
+			out << "+";
 
-		for(int i=0; i<size; i++)
-		{
-			(strcmp(board[i][i], “O”)!=0)
-			{
-				break;
-			}
-			if(i == (size-1))
-			{
-				return true;
-			}
-		}
-
-		for(int i=0; i<size; i++)
-		{
-			(strcmp(board[size-1-i][i], “O”)!=0)
-			{
-				break;
-			}
-			if(i == (size-1))
-			{
-				return true;
-			}
-		}
+		out << std::endl;
+		return out;
 	}
 }
